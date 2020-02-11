@@ -20,14 +20,19 @@ public:
 
     if(state != newState){ //Pin state changed
       if(newState){  //new state is Release =>
+        state = newState;
         return RELEASE;
+
       }
       else{           //new state is Push =>
+        state = newState;
+
         return PUSH;
       }
     }
     else{           //nothing changed..
       return NOPE;
+
     }
   }
 

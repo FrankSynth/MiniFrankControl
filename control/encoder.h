@@ -9,6 +9,10 @@
 /* function pointer definition */
 typedef void (*encoderActionFunc)(bool isSwitch , bool action, int id);
 
+byte bitReadInt(unsigned long b, byte bitPos){
+  unsigned long x = b & ((unsigned long)1 << bitPos);
+  return x == 0 ? 0 : 1;
+}
 
 /* We describe an object in which we instantiate a rotary encoder*/
 class encoder {
@@ -17,6 +21,7 @@ public:
   : rot(pinA, pinB),  //create rotaryObject
   encSwitch(),        //create switchObject
   pinA(pinA), pinB(pinB),
+  pinSwitch(pinSwitch),
   id(id) {
   }
 
@@ -31,34 +36,33 @@ public:
 };
 
 void readEncoders(encoder *rotaryEncoders, byte nbEncoder, encoderActionFunc actionFunc) {
-  uint32_t inputs;  //enough space for 32 inputs
+  unsigned long inputs = 0;  //enough space for 32 inputs
   //Combine all Inputs
-  inputs = PINA;
-  inputs = PINB <<8 | inputs;
-  inputs = PINC <<16 | inputs;
-  inputs = PIND <<24 | inputs;
+  inputs = (unsigned long)PINA;
+  inputs = (unsigned long)((unsigned long)PINB <<8) | inputs;
+  inputs = (unsigned long)((unsigned long)PINC <<16) | inputs;
+  inputs = (unsigned long)((unsigned long)PIND <<24) | inputs;
 
   //Lets check all encoder
   for(int x = 0; x< nbEncoder; x++){
     //Test rotation
-    uint8_t pinValA = bitRead(inputs, rotaryEncoders[x].pinA); //current pinA Value
-    uint8_t pinValB = bitRead(inputs, rotaryEncoders[x].pinB); //current pinB Value
+    uint8_t pinValA = bitReadInt(inputs, rotaryEncoders[x].pinA); //current pinA Value
+    uint8_t pinValB = bitReadInt(inputs, rotaryEncoders[x].pinB); //current pinB Value
     uint8_t event = rotaryEncoders[x].rot.process(pinValA, pinValB);     //process Values and get event state
     if(event == DIR_CW || event == DIR_CCW) {  //clock wise or counter-clock wise
 
-      event = event == DIR_CW;  //Clowise = 1
+      event = event == DIR_CW;  //Clockwise = 1
 
       //Call into action function if registered
       actionFunc(0, event, rotaryEncoders[x].id);
     }
 
     //Test push switch
-    uint8_t state = bitRead(inputs, rotaryEncoders[x].pinSwitch); //current pinSwitch value
+    uint8_t state = bitReadInt(inputs, rotaryEncoders[x].pinSwitch); //current pinSwitch value
     event =  rotaryEncoders[x].encSwitch.process(state); //process switchValue and get event state
     if(event == PUSH || event == RELEASE) {      //pushed or RELEASE
 
       event = event == PUSH;  //Push = 1
-
       //Call into action function if registered
       actionFunc(1, event, rotaryEncoders[x].id);
     }
