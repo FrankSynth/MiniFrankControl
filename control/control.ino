@@ -18,7 +18,7 @@ encoder rotaryEncoders[] = {
    encoder(21, 20, 27, 2),  //Encoder 3
    encoder(16, 17, 28, 3),  //Encoder 4
    encoder(0, 1, 8, 4),  //Encoder 5
-   encoder(23, 22, 9, 5),  //Encoder 6
+   encoder(22, 23, 9, 5),  //Encoder 6
    encoder(7, 6, 10, 6),  //Encoder 7
    encoder(5, 4, 11, 7),  //Encoder 8
    encoder(30,31, 29, 8),  //Encoder 9
